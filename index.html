@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Butterfly Nebula Simulation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="nebulaCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("nebulaCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let gradientOffset = 0;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            createNebula(gradientOffset);
+            gradientOffset += 0.5;
+            if (gradientOffset > canvas.width) gradientOffset = 0;
+
+            requestAnimationFrame(animate);
+        }
+
+        function createNebula(offset) {
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 50 + offset,
+                canvas.width / 2, canvas.height / 2, canvas.width / 2 + offset
+            );
+            gradient.addColorStop(0, "rgba(72, 0, 72, 0.8)");
+            gradient.addColorStop(0.3, "rgba(139, 0, 139, 0.6)");
+            gradient.addColorStop(0.5, "rgba(255, 20, 147, 0.4)");
+            gradient.addColorStop(0.7, "rgba(255, 140, 0, 0.2)");
+            gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const gradient2 = ctx.createRadialGradient(
+                canvas.width / 3 + offset, canvas.height / 3 + offset, 50,
+                canvas.width / 3 + offset, canvas.height / 3 + offset, canvas.width / 2
+            );
+            gradient2.addColorStop(0, "rgba(0, 0, 255, 0.4)");
+            gradient2.addColorStop(0.5, "rgba(0, 255, 255, 0.2)");
+            gradient2.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const gradient3 = ctx.createRadialGradient(
+                (2 * canvas.width) / 3 - offset, (2 * canvas.height) / 3 - offset, 50,
+                (2 * canvas.width) / 3 - offset, (2 * canvas.height) / 3 - offset, canvas.width / 2
+            );
+            gradient3.addColorStop(0, "rgba(0, 255, 0, 0.4)");
+            gradient3.addColorStop(0.5, "rgba(255, 255, 0, 0.2)");
+            gradient3.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+            ctx.fillStyle = gradient3;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function addNoise() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const noise = Math.random() * 50;
+                data[i] += noise;     // Red
+                data[i + 1] += noise; // Green
+                data[i + 2] += noise; // Blue
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        createNebula(0);
+        addNoise();
+        animate();
+
+        canvas.addEventListener('mousemove', revealNebula);
+        canvas.addEventListener('click', revealNebula);
+    </script>
+</body>
+</html>
